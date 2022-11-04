@@ -1,7 +1,7 @@
 {
   "name": "andaria-countries-challenge",
   "version": "0.1.0",
-  "homepage": "https://alanfps.github.io/",
+  "homepage": "https://alanfps.github.io/andaria-countries-challenge/",
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^2.0.11",
