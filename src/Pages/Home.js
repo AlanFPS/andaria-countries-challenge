@@ -2,7 +2,9 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import {
+  Button,
   Flex,
+  Grid,
   GridItem,
   Image,
   Input,
@@ -24,6 +26,13 @@ function Home() {
   const [data2, setData2] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [selectInput, setSelectInput] = useState("all");
+
+  const [view, setView] = useState(
+    localStorage.getItem("view")
+      ? JSON.parse(localStorage.getItem("view"))
+      : "grid"
+  );
+
   let navigate = useNavigate();
 
   // CALLING API
@@ -63,6 +72,13 @@ function Home() {
     );
   };
 
+  const handleChangeView = (e) => {
+    setView(e.target.value);
+    localStorage.setItem("view", JSON.stringify(e.target.value));
+  };
+
+  console.log(view, "data");
+
   return (
     <div>
       {/* Navbar */}
@@ -70,7 +86,13 @@ function Home() {
       {/* 
     Country Search and Region Select form */}
       <form>
-        <Flex pr="50" pl="50" flexWrap={"wrap"}>
+        <Flex
+          maxW="2000px"
+          pt="10"
+          w={{ base: "95%", lg: "90%" }}
+          mx="auto"
+          flexWrap={"wrap"}
+        >
           <Box p="4">
             <InputGroup>
               <InputLeftElement
@@ -96,6 +118,12 @@ function Home() {
               <option value="oceania">Oceania</option>
             </Select>
           </Box>
+          <Box p="4">
+            <Select onChange={handleChangeView} value={view}>
+              <option value="grid">Grid View</option>
+              <option value="list">List View</option>
+            </Select>
+          </Box>
         </Flex>
       </form>
 
@@ -105,77 +133,185 @@ function Home() {
         <Progress colorScheme="pink" size="xs" isIndeterminate />
       ) : (
         <Box w="100%">
-          <SimpleGrid
-            columns={[1, null, 4]}
-            spacing={10}
-            pt="100"
-            pr="50"
-            pl="50"
-          >
-            {data?.map((x) => (
-              <GridItem
-                key={x?.name?.common}
-                onClick={() =>
-                  navigate(`/singlecountry/${x?.cca2?.toLowerCase()}`, {})
-                }
-              >
-                <Box
-                  maxW="sm"
-                  borderWidth="1px"
-                  borderRadius="lg"
-                  overflow="hidden"
-                >
-                  <Image
-                    src={x?.flags?.svg}
-                    alt={x?.name?.common}
-                    height="200px"
-                    width="100%"
-                  />
-                  <Box p="6">
+          {view == "grid" ? (
+            <Grid
+              templateColumns={{
+                base: "repeat(1,1fr)",
+                sm: "repeat(2,1fr)",
+                md: "repeat(3,1fr)",
+                xl: "repeat(4,1fr)",
+              }}
+              gap={{ base: 5, sm: 7, lg: 8 }}
+              maxW="2000px"
+              pt="100"
+              w={{ base: "95%", lg: "90%" }}
+              mx="auto"
+            >
+              {data
+                ?.sort((a, b) =>
+                  a?.name?.common?.localeCompare(b?.name?.common)
+                )
+                .map((x) => (
+                  <GridItem
+                    w={"100%"}
+                    key={x?.name?.common}
+                    onClick={() =>
+                      navigate(`/singlecountry/${x?.cca2?.toLowerCase()}`, {})
+                    }
+                  >
                     <Box
-                      mt="1"
-                      fontWeight="semibold"
-                      as="h4"
-                      lineHeight="tight"
-                      noOfLines={1}
+                      w="100%"
+                      borderWidth="1px"
+                      borderRadius="lg"
+                      // overflow="hidden"
                     >
-                      {x?.name?.common}
-                    </Box>
+                      <Image
+                        src={x?.flags?.svg}
+                        alt={x?.name?.common}
+                        height="200px"
+                        width="100%"
+                        objectFit={"cover"}
+                      />
+                      <Box p="6">
+                        <Box
+                          mt="1"
+                          fontWeight="semibold"
+                          as="h4"
+                          lineHeight="tight"
+                          noOfLines={1}
+                        >
+                          {x?.name?.common}
+                        </Box>
 
-                    <Box
-                      mt="1"
-                      fontWeight="semibold"
-                      as="h4"
-                      lineHeight="tight"
-                      noOfLines={1}
-                    >
-                      Population: {x?.population}
-                    </Box>
+                        <Box
+                          mt="1"
+                          fontWeight="semibold"
+                          as="h4"
+                          lineHeight="tight"
+                          noOfLines={1}
+                        >
+                          Population: {x?.population}
+                        </Box>
 
-                    <Box
-                      mt="1"
-                      fontWeight="semibold"
-                      as="h4"
-                      lineHeight="tight"
-                      noOfLines={1}
-                    >
-                      Region: {x?.region}
-                    </Box>
+                        <Box
+                          mt="1"
+                          fontWeight="semibold"
+                          as="h4"
+                          lineHeight="tight"
+                          noOfLines={1}
+                        >
+                          Region: {x?.region}
+                        </Box>
 
-                    <Box
-                      mt="1"
-                      fontWeight="semibold"
-                      as="h4"
-                      lineHeight="tight"
-                      noOfLines={1}
-                    >
-                      Capital: {x?.capital}
+                        <Box
+                          mt="1"
+                          fontWeight="semibold"
+                          as="h4"
+                          lineHeight="tight"
+                          noOfLines={1}
+                        >
+                          Capital: {x?.capital}
+                        </Box>
+                      </Box>
                     </Box>
-                  </Box>
-                </Box>
-              </GridItem>
-            ))}
-          </SimpleGrid>
+                  </GridItem>
+                ))}
+            </Grid>
+          ) : (
+            <Flex pt="100" flexDir={"column"} gap={8}>
+              {data
+                ?.sort((a, b) =>
+                  a?.name?.common?.localeCompare(b?.name?.common)
+                )
+                .map((x) => (
+                  <Flex
+                    w="90%"
+                    mx="auto"
+                    rounded={"md"}
+                    minH="175px"
+                    borderWidth="1px"
+                    borderRadius="lg"
+                    alignItems={{ base: "flex-start", sm: "center" }}
+                    justifyContent={{ base: "flex-start", sm: "space-between" }}
+                    maxW={"2000px"}
+                    flexDir={{ base: "column", sm: "row" }}
+                  >
+                    <Flex
+                      alignItems={{ base: "flex-start", sm: "center" }}
+                      flexDir={{ base: "column", sm: "row" }}
+                    >
+                      <Image
+                        src={x?.flags?.svg}
+                        alt={x?.name?.common}
+                        height={{ base: "200px", sm: "175px" }}
+                        width={{ base: "100%", sm: "200px" }}
+                        objectFit={"cover"}
+                        borderLeftRadius="lg"
+                      />
+                      <Box px="6" py={{ base: "6", sm: "0" }}>
+                        <Box
+                          mt="1"
+                          fontWeight="semibold"
+                          as="h4"
+                          lineHeight="tight"
+                          noOfLines={1}
+                        >
+                          {x?.name?.common}
+                        </Box>
+
+                        <Box
+                          mt="1"
+                          fontWeight="semibold"
+                          as="h4"
+                          lineHeight="tight"
+                          noOfLines={1}
+                        >
+                          Population: {x?.population}
+                        </Box>
+
+                        <Box
+                          mt="1"
+                          fontWeight="semibold"
+                          as="h4"
+                          lineHeight="tight"
+                          noOfLines={1}
+                        >
+                          Region: {x?.region}
+                        </Box>
+
+                        <Box
+                          mt="1"
+                          fontWeight="semibold"
+                          as="h4"
+                          lineHeight="tight"
+                          noOfLines={1}
+                        >
+                          Capital: {x?.capital}
+                        </Box>
+                      </Box>
+                    </Flex>
+                    <Box
+                      px={{ base: "6", sm: "0" }}
+                      py={{ base: "3", sm: "0" }}
+                    >
+                      <Button
+                        size="lg"
+                        variant="solid"
+                        mr="3"
+                        onClick={() =>
+                          navigate(
+                            `/singlecountry/${x?.cca2?.toLowerCase()}`,
+                            {}
+                          )
+                        }
+                      >
+                        Details
+                      </Button>
+                    </Box>
+                  </Flex>
+                ))}
+            </Flex>
+          )}
         </Box>
       )}
     </div>
